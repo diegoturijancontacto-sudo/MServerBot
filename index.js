@@ -18,7 +18,7 @@ function conectarBot() {
   console.log('Iniciando conexión con Aternos...');
   
   const client = bedrock.createClient({
-    host: process.env.ATERNOS_HOST || 'pueblaoficial.aternos.me', 
+    host: 'pueblaoficial.aternos.me', 
     port: 51582,       
     username: 'Isis',
     offline: true,
