@@ -1,0 +1,13 @@
+{
+  "name": "aternos-bot-247",
+  "version": "1.0.0",
+  "description": "Bot para mantener activo servidor de Bedrock",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "bedrock-protocol": "^3.26.0",
+    "express": "^4.19.0"
+  }
+}
