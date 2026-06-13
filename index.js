@@ -20,7 +20,7 @@ function conectarBot() {
   const client = bedrock.createClient({
     host: process.env.ATERNOS_HOST || 'pueblaoficial.aternos.me', 
     port: 51582,       
-    username: 'AlexToffler',
+    username: 'Isis',
     offline: true,
     raknetTimeout: 15000,
     skipTickCheck: true
