@@ -1,5 +1,7 @@
 const bedrock = require('bedrock-protocol');
 const express = require('express');
+const fs = require('fs'); // <-- Requerido para leer archivos
+const PNG = require('pngjs').PNG; // <-- Requerido para procesar los píxeles de la skin
 
 const app = express();
 const PORT = process.env.PORT || 10000;
@@ -15,18 +17,65 @@ app.listen(PORT, () => {
 
 let bucleChat = null;
 
+// Función para transformar un PNG comercial en el formato crudo RGBA (Base64) que pide Bedrock
+function cargarSkinPersonalizada(rutaArchivo) {
+  try {
+    if (!fs.existsSync(rutaArchivo)) {
+      console.log(`[Skin] No se encontró el archivo "${rutaArchivo}". El bot usará la skin por defecto (Steve).`);
+      return null;
+    }
+
+    const archivoBuffer = fs.readFileSync(rutaArchivo);
+    const png = PNG.sync.read(archivoBuffer);
+
+    // Bedrock no lee el archivo PNG completo, lee el array de bytes de color RGBA directamente mapeado
+    const rawDataBuffer = png.data.toString('base64');
+
+    console.log(`[Skin] "${rutaArchivo}" cargada con éxito (${png.width}x${png.height}).`);
+
+    return {
+      SkinId: "BotCustomSkinID",
+      SkinImageWidth: png.width,
+      SkinImageHeight: png.height,
+      SkinData: rawDataBuffer,
+      SkinResourcePatch: Buffer.from(JSON.stringify({
+        geometry: { default: "geometry.humanoid.custom" }
+      })).toString('base64'),
+      GeometryData: "",
+      CapeId: "",
+      CapeData: "",
+      PremiumSkin: true,
+      PersonaSkin: false,
+      CapeOnClassicSkin: false
+    };
+  } catch (err) {
+    console.error('[Skin] Error al procesar el archivo de imagen:', err.message);
+    return null;
+  }
+}
+
 function conectarBot() {
   console.log('Iniciando conexión con Aternos...');
   
-  // Usamos exactamente los mismos parámetros que te funcionaron en Colab
-  const client = bedrock.createClient({
+  // Cargamos los datos de la skin antes de crear el cliente
+  const datosSkin = cargarSkinPersonalizada('skin.png');
+
+  // Usamos exactamente los mismos parámetros de tu configuración original
+  const clientOptions = {
     host: 'pueblaoficial.aternos.me', 
-    port: 51582, // <-- ASEGÚRATE de que este sea el puerto actual de tu panel de Aternos
+    port: 51582, 
     username: 'BotAternos247',
     offline: true,
     raknetTimeout: 15000,
-    skipTickCheck: true // El truco maestro de Colab para saltar los chunks
-  });
+    skipTickCheck: true 
+  };
+
+  // Si la skin se procesó correctamente, se la inyectamos a las opciones
+  if (datosSkin) {
+    clientOptions.skinData = datosSkin;
+  }
+
+  const client = bedrock.createClient(clientOptions);
 
   client.on('start_game', () => {
     console.log('¡Conectado a Aternos con éxito! Manteniendo el servidor despierto.');
