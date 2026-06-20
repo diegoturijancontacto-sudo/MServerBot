@@ -64,7 +64,7 @@ function conectarBot() {
   const clientOptions = {
     host: 'pueblaoficial.aternos.me', 
     port: 51582, 
-    username: 'BotAternos247',
+    username: 'Herobrine',
     offline: true,
     raknetTimeout: 15000,
     skipTickCheck: true 
